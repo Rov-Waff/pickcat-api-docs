@@ -26,7 +26,9 @@
 ## 值得注意的
 
 - `captchaVerifyParam` 是前端把阿里云返回的验证结果 Base64 编码后的字符串。此步骤**不发送密码**。
+- 请求头**必须**携带 `Idempotency-Key`（1~128 个可见 ASCII 字符），用于防止重复发起注册；缺失时返回 `400 IDEMPOTENCY_KEY_REQUIRED`。
 - `registrationId` 用于后续 PATCH；`PENDING` 表示等待邮箱验证；`expiresAt` 为验证有效期。
+- 成功返回 `201 Created`。
 - 由于存在CAPTHA，脚本注册大量账号并不现实
 
 ## 示例
@@ -81,7 +83,7 @@ async fn main() -> Result<()> {
 
     // 前端从阿里云验证码回调拿到的 JSON, 做 base64
     // 这里仅示意, 真实值应由前端传入
-    let captcha_json = r#"{"csrf":"...","captchaVerifyParam":"..."}"#;
+    let captcha_json = r#"{"certifyId":"...","sceneId":"1icer78a","isSign":true,"securityToken":"..."}"#;
     let captcha_b64 = base64_encode(captcha_json);
 
     let data = start_registration(
@@ -165,7 +167,7 @@ def start_registration(
 
 def main():
     # 前端从阿里云验证码回调拿到的 JSON, base64 编码后传后端
-    captcha_json = '{"csrf":"...","captchaVerifyParam":"..."}'
+    captcha_json = '{"certifyId":"...","sceneId":"1icer78a","isSign":true,"securityToken":"..."}'
     captcha_b64 = base64.b64encode(captcha_json.encode()).decode()
 
     with requests.Session() as s:
@@ -234,7 +236,7 @@ async function startRegistration(
 
 async function main() {
   // 前端从阿里云验证码回调拿到的 JSON, base64 编码
-  const captchaJson = JSON.stringify({ csrf: "...", captchaVerifyParam: "..." });
+  const captchaJson = JSON.stringify({ certifyId: "...", sceneId: "1icer78a", isSign: true, securityToken: "..." });
   const captchaB64 = Buffer.from(captchaJson, "utf8").toString("base64");
 
   const data = await startRegistration(

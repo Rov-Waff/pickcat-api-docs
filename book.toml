@@ -1,7 +1,7 @@
 [book]
-title = "Pickcat API社区API文档"
+title = "Pickcat 社区 API 文档"
 authors = ["Xiaole6324"]
-language = "en"
+language = "zh-CN"
 
 [preprocessor.langtabs]
 

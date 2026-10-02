@@ -7,7 +7,7 @@
 ```json
 { 
     "username": "xxxx@gmail.com", 
-    "password": "P@ssW0rd"
+    "password": "P@ssW0rd123"
 }
 ```
 
@@ -40,7 +40,7 @@
 | user      | 用户基础信息    | Object     |
 | createdAt | Session建立时间 | DateTime   |
 | expiresAt | Session过期时间 | DateTime   |
-| silence   | 是否禁言(存疑)  | Any/Option |
+| silence   | 含义未验证（可能与禁言有关） | Any/Option |
 
 ### user字段
 
@@ -53,12 +53,14 @@
 | createdAt            | 账户创建时间       | DateTime      |
 | avatar               | 头像               | Object        |
 | level                | 用户等级           | Object        |
-| effectivePermissions | 特殊权限(内容存疑) | ArrayList/Vec |
+| effectivePermissions | 特殊权限（含义未验证） | ArrayList/Vec |
 
 ## 值得注意的
 
 - 与主站不同，Pickcat使用Session鉴权，而不是JWT，因此，返回体**不含 token**，会话凭据通过 HTTP头部`Set-Cookie` 下发
 - Session有效期 **7 天**
+- 成功返回 `201 Created`，响应头包含 `location: /api/v1/session`。
+- `username` 字段填邮箱或用户名均可，统一命名为 `username`。
 
 ## 示例
 <!-- langtabs-start -->
@@ -72,7 +74,7 @@ use std::sync::Arc;
 // 注意: 已包含 /api/v1
 const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
 const USERNAME: &str = "xxxx@gmail.com";
-const PASSWORD: &str = "P@ssW0rd";
+const PASSWORD: &str = "P@ssW0rd123";
 
 async fn login(client: &Client) -> Result<Value> {
     let resp = client
@@ -137,12 +139,12 @@ import requests
 
 BASE_URL = "https://cdsq.dao3.fun/api/v1"
 USERNAME = "xxxx@gmail.com"
-PASSWORD = "P@ssW0rd"
+PASSWORD = "P@ssW0rd123"
 
 
 def login(session: requests.Session) -> dict:
     resp = session.post(
-        f"{BASE_URL}/api/v1/session",
+        f"{BASE_URL}/session",
         json={"username": USERNAME, "password": PASSWORD},
     )
     resp.raise_for_status()  # 非 2xx 抛异常
@@ -170,7 +172,7 @@ def main():
             print(f"Cookie: {name}={value}")
 
         # 之后的请求会自动带上会话 Cookie, 例如:
-        # me = s.get(f"{BASE_URL}/api/v1/me")
+        # me = s.get(f"{BASE_URL}/me")
         # print(me.json())
 
 
@@ -180,7 +182,7 @@ if __name__ == "__main__":
 ```typescript
 const BASE_URL = "https://cdsq.dao3.fun/api/v1";
 const USERNAME = "xxxx@gmail.com";
-const PASSWORD = "P@ssW0rd";
+const PASSWORD = "P@ssW0rd123";
 
 // 极简 Cookie jar: 服务端返回的每个 Set-Cookie 只取第一段 name=value
 const jar = new Map<string, string>();
@@ -211,7 +213,7 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function login() {
-  const res = await request("/api/v1/session", {
+  const res = await request("/session", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
@@ -236,7 +238,7 @@ async function main() {
   for (const [k, v] of jar) console.log(`Cookie: ${k}=${v}`);
 
   // 后续请求自动带 Cookie:
-  // const me = await (await request("/api/v1/me")).json();
+  // const me = await (await request("/me")).json();
   // console.log(me);
 }
 
