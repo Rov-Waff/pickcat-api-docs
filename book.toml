@@ -2,3 +2,9 @@
 title = "Pickcat API社区API文档"
 authors = ["Xiaole6324"]
 language = "en"
+
+[preprocessor.langtabs]
+
+[output.html]
+additional-css=["langtabs.css"]
+additional-js=["langtabs.js"]
