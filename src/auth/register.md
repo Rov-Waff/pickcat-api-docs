@@ -27,6 +27,7 @@
 
 - `captchaVerifyParam` 是前端把阿里云返回的验证结果 Base64 编码后的字符串。此步骤**不发送密码**。
 - `registrationId` 用于后续 PATCH；`PENDING` 表示等待邮箱验证；`expiresAt` 为验证有效期。
+- 由于存在CAPTHA，脚本注册大量账号并不现实
 
 ## 示例
 
