@@ -11,6 +11,7 @@
 - [用户](./user.md)
     - [用户资料](./user/profile.md)
     - [用户内容](./user/content.md)
+    - [关注与粉丝](./user/follow.md)
     - [用户徽章](./user/badge.md)
     - [用户动态与贡献](./user/activity.md)
     - [等级与配额](./user/level.md)

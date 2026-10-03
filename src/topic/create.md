@@ -32,7 +32,20 @@
 | kind     | `DISCUSSION`/`QUESTION`/`ANNOUNCEMENT` | String    |
 | tagIds   | 分区标签UUID列表                       | ArrayList |
 
-> 回帖推测不带 `title`，改用目标 `topicId` 等字段（本次未捕获）。
+回帖（`replyToPostNumber` 可选，用于楼中楼）：
+
+```json
+{
+  "topicId": "01a0c95a-10fa-79da-b024-f31384f0f805",
+  "markdown": "合影",
+  "replyToPostNumber": 1
+}
+```
+
+| KEY               | VALUE                      | TYPE           |
+| ----------------- | -------------------------- | -------------- |
+| topicId           | 目标主题UUID               | String         |
+| replyToPostNumber | 回复的目标楼层号，可为 null | Integer/Option |
 
 ## 响应体
 

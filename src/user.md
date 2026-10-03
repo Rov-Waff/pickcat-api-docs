@@ -9,6 +9,8 @@
 | GET    | `/api/v1/users/{userId}`                               | 否     | [获取用户资料](./user/profile.md#获取用户资料)              |
 | PATCH  | `/api/v1/users/{userId}`                               | 是     | [修改个人资料](./user/profile.md#修改个人资料)              |
 | GET    | `/api/v1/users/{userId}/email`                         | 是     | [查询用户邮箱（仅自己）](./user/profile.md#查询用户邮箱仅自己) |
+| GET    | `/api/v1/users/{userId}/following`                     | 否     | [关注列表](./user/follow.md#获取关注列表)                   |
+| GET    | `/api/v1/users/{userId}/followers`                     | 否     | [粉丝列表](./user/follow.md#获取粉丝列表)                   |
 | GET    | `/api/v1/users/{userId}/topics`                        | 否     | [用户发布的主题](./user/content.md#发布的主题)              |
 | GET    | `/api/v1/users/{userId}/posts`                         | 否     | [用户的回帖](./user/content.md#回帖)                        |
 | GET    | `/api/v1/users/{userId}/featured-topics`               | 否     | [精选主题](./user/content.md#精选主题)                      |

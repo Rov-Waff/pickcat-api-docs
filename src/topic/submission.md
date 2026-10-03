@@ -9,7 +9,7 @@
 | KEY         | 观测值                             | 说明                      |
 | ----------- | ---------------------------------- | ------------------------- |
 | contentRole | `TOPIC_REPLY` / `TOPIC_FIRST_POST` | 内容角色（回帖 / 主题首楼）|
-| status      | `PENDING`                          | 审核状态                  |
+| status      | `PENDING` / `REJECTED`             | 审核状态筛选              |
 | topicId     | 目标主题UUID                       | 可选，按主题过滤          |
 | limit       | `100` / `20`                       | 每页数量                  |
 
@@ -46,10 +46,35 @@
 | baseRevision                 | 基线版本，可为 null               | String/Option |
 | createdAt / updatedAt        | 创建/更新时间                     | DateTime      |
 
+## 获取单条投稿
+
+> 获取投稿详情 `/api/v1/post-submissions/{submissionId}` GET **需要Cookie**
+
+### 响应体
+
+```json
+{
+  "id": "01a0ff33-69c6-74a3-ba97-6370b8079f6c",
+  "status": "PENDING_PROVIDER",
+  "contentRole": "TOPIC_REPLY",
+  "request": { "topicId": "01a0c95a-...", "markdown": "合影", "replyToPostNumber": 1 },
+  "riskLevel": null,
+  "topicId": "01a0c95a-...",
+  "postId": "01a0ff33-...",
+  "postNumber": 52,
+  "baseRevision": null,
+  "createdAt": "2026-10-03T00:39:14.613Z",
+  "updatedAt": "2026-10-03T00:39:14.613Z"
+}
+```
+
+字段与上表列表项一致。
+
 ## 值得注意的
 
 - 同一接口既用于**版务审核队列**，也用于个人主页查看**自己的待审投稿**（`?tab=topics&publication=PENDING`）。
-- `status` 观测到 `PENDING_PROVIDER`（送第三方审核中）；推测还有 `APPROVED` / `REJECTED` 等终态。
+- `status` 观测到 `PENDING`、`PENDING_PROVIDER`（送第三方审核中）、`REJECTED`；推测还有 `APPROVED` 等终态。
+- `request` 随 `contentRole` 变化：主题首楼含 `title`/`kind`/`tagIds`/`markdown`，回帖含 `topicId`/`markdown`/`replyToPostNumber`。
 - 审核期间主题尚未对他人可见。
 
 ## 示例
