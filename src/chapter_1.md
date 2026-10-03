@@ -24,6 +24,7 @@
 - 没有特殊标注的 API 都基于这个 URL：`https://cdsq.dao3.fun/api/v1`
 - URL 中类似这样的表达/abc/{user_id}，{xxx}是一个变量，一般不会说明变量含义，可以从{user_id}看出是用户 ID
 - 如果请求不需要用到 cookie，不会专门标注
+- 写接口（注册、发帖、上传等）需要 `Idempotency-Key` 请求头
 
 2. 响应示例大多为真实返回，但可能经过精简、脱敏，或仅有结构而无真实数据。
 
@@ -55,6 +56,7 @@
 | 401 | `UNAUTHENTICATED` | 未登录或会话已失效 |
 | 404 | `NOT_FOUND` / `EMOJI_NOT_FOUND` | 资源不存在 |
 | 409 | `ENTRANCE_EXAM_COOLDOWN` | 入站考试冷却中 |
+| 422 | `EXTERNAL_LINK_NOT_ALLOWED` | 发帖正文含社区外链接 |
 
 ## 开源
 

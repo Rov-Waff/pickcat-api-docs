@@ -4,6 +4,12 @@
 
 > 获取全部分区标签 `/api/v1/tags` GET
 
+### Query
+
+| KEY        | 观测值 | 说明                           |
+| ---------- | ------ | ------------------------------ |
+| assignable | `true` | 仅返回普通用户可主动发帖的分区 |
+
 ### 响应体
 
 ```json
@@ -51,6 +57,7 @@
 
 - 全站共 9 个分区，`slug` 即[主题列表](./topic/list.md#主题列表)过滤时 `tag` 参数的值。
 - `interest-plaza` 等分区下的子标签会通过 `sidebar-links` 单独返回。
+- 加 `assignable=true` 后只返回 **6 个可发帖分区**（creative-works / learning-technology / q-and-a / events-competitions / interest-plaza / box），不含 neko、coconut、python（属「频道」型分区，需在对应频道内发帖）。
 
 ## 示例
 

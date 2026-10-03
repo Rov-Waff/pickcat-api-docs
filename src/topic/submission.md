@@ -2,32 +2,55 @@
 
 > 获取投稿审核列表 `/api/v1/post-submissions` GET **需要Cookie**
 
-版务使用的审核队列，需要相应权限。
+既用于版务的审核队列，也用于个人主页查看自己的待审投稿。
 
 ### Query
 
-| KEY         | 观测值         | 说明         |
-| ----------- | -------------- | ------------ |
-| contentRole | `TOPIC_REPLY`  | 内容角色     |
-| status      | `PENDING`      | 审核状态     |
-| topicId     | 目标主题UUID   | 指定主题     |
-| limit       | `100`          | 每页数量     |
+| KEY         | 观测值                             | 说明                      |
+| ----------- | ---------------------------------- | ------------------------- |
+| contentRole | `TOPIC_REPLY` / `TOPIC_FIRST_POST` | 内容角色（回帖 / 主题首楼）|
+| status      | `PENDING`                          | 审核状态                  |
+| topicId     | 目标主题UUID                       | 可选，按主题过滤          |
+| limit       | `100` / `20`                       | 每页数量                  |
 
 ### 响应体
 
 ```json
-{ "items": [], "pageInfo": { "hasNextPage": false, "nextCursor": null } }
+{
+  "items": [
+    {
+      "id": "01a0ff25-1f05-7f09-8d1b-a32e2b0bab00",
+      "status": "PENDING_PROVIDER",
+      "contentRole": "TOPIC_FIRST_POST",
+      "request": { "kind": "DISCUSSION", "title": "...", "tagIds": ["..."], "markdown": "..." },
+      "riskLevel": null,
+      "topicId": "01a0ff25-1f07-77f3-beb8-0dabe6dba5f3",
+      "postId": "01a0ff25-1f0a-7ec1-890d-86612754c302",
+      "postNumber": 1,
+      "baseRevision": null,
+      "createdAt": "...", "updatedAt": "..."
+    }
+  ],
+  "pageInfo": { "hasNextPage": false, "nextCursor": null }
+}
 ```
 
-| KEY      | VALUE        | TYPE      |
-| -------- | ------------ | --------- |
-| items    | 待审核投稿   | ArrayList |
-| pageInfo | 分页信息     | Object    |
+| KEY                          | VALUE                             | TYPE          |
+| ---------------------------- | --------------------------------- | ------------- |
+| id                           | 审核记录UUID                      | String        |
+| status                       | 审核状态，如 `PENDING_PROVIDER`   | String        |
+| contentRole                  | 内容角色                          | String        |
+| request                      | 提交内容原样回显（含 `markdown`） | Object        |
+| riskLevel                    | 风险等级，可为 null               | String/Option |
+| topicId / postId / postNumber| 预生成的定位信息                  | String/Integer|
+| baseRevision                 | 基线版本，可为 null               | String/Option |
+| createdAt / updatedAt        | 创建/更新时间                     | DateTime      |
 
 ## 值得注意的
 
-- 该接口面向版务，普通用户调用可能返回空列表或权限错误。
-- 实测队列为空（`items: []`），具体投稿项结构尚未验证。
+- 同一接口既用于**版务审核队列**，也用于个人主页查看**自己的待审投稿**（`?tab=topics&publication=PENDING`）。
+- `status` 观测到 `PENDING_PROVIDER`（送第三方审核中）；推测还有 `APPROVED` / `REJECTED` 等终态。
+- 审核期间主题尚未对他人可见。
 
 ## 示例
 

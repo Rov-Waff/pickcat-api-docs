@@ -19,6 +19,7 @@
     - [主题列表与推荐](./topic/list.md)
     - [主题详情](./topic/detail.md)
     - [楼层列表](./topic/posts.md)
+    - [发布主题/回帖](./topic/create.md)
     - [投稿审核](./topic/submission.md)
 - [分区标签](./tag.md)
 - [通知](./notification.md)
