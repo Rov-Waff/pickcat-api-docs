@@ -86,8 +86,8 @@
 
 - 所有写接口都需要 `Idempotency-Key` 请求头。
 - `markdown` 中**不允许社区外的链接**，否则返回 `422 EXTERNAL_LINK_NOT_ALLOWED`，`details` 会指出字段与命中的域名。
-- 图片先通过 [`POST /files`](../media.md#图片上传) 上传，正文中以 `![fileId]`（不是 URL）引用。
-- 提交后进入审核队列，可查询[投稿审核](./submission.md)。
+- 图片先通过 [`POST /files`](../media/upload.md) 上传，正文中以 `![fileId]`（不是 URL）引用。
+- 提交后进入审核队列，可查询[投稿审核列表](./submissions.md)。
 
 ## 示例
 

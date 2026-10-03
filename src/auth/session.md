@@ -31,22 +31,12 @@
 | expiresAt | Session过期时间 | DateTime   |
 | silence   | 含义未验证（可能与禁言有关） | Any/Option |
 
-## 登出
-
-> 登出 `/api/v1/session` DELETE **需要Cookie**
-
-调用后当前 Session 立即失效，之后访问受保护接口会返回 `401 UNAUTHENTICATED`。
-
-### 响应体
-
-成功返回 `204 No Content`（无响应体）。
-
 ## 值得注意的
 
 - 与会话相关的响应体均**不含 token**，凭据仅通过 Cookie 传递。
 - 通过入站考试后再次调用本接口，`user.level.current` 会由 `0` 变为 `1`，同时 `expiresAt` 顺延。
-- 登出接口为 `DELETE /api/v1/session`，成功返回 `204 No Content`，之后访问受保护接口返回 `401 UNAUTHENTICATED`。
 - 会话 Cookie 名为 `pickcat_session`（HttpOnly / Secure / SameSite=Lax，有效期 7 天）。
+- 登出请使用[登出](./logout.md)（`DELETE /api/v1/session`）。
 
 ## 示例
 

@@ -74,6 +74,7 @@ mdbook build          # 静态输出到 book/
 
 欢迎通过 Issue / PR 补充或修正接口。为保持风格一致，请尽量遵循：
 
+- **一个文档只描述一个接口**；模块页（如 `auth.md`、`user.md`）仅作为该模块的「一览」索引
 - 每个接口页包含：头部行 `> {中文描述} \`{路径}\` {METHOD}`、`请求体` / `响应体`、`值得注意的`、`示例`
 - `示例` 提供 **Rust / Python / TypeScript** 三种语言（使用 `<!-- langtabs-start -->` / `<!-- langtabs-end -->` 包裹）
 - 字段表统一为 `| KEY | VALUE | TYPE |`

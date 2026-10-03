@@ -1,12 +1,10 @@
-# 等级与配额
-
-## 等级进度
+# 等级进度
 
 > 获取等级进度 `/api/v1/level-progress` GET **需要Cookie**
 
 等级页核心接口，含当前分数、熟悉度、下一级要求与各项操作配额。
 
-### 响应体
+## 响应体
 
 ```json
 {
@@ -54,55 +52,22 @@
 }
 ```
 
-| KEY                          | VALUE                                             | TYPE     |
-| ---------------------------- | ------------------------------------------------- | -------- |
-| currentLevel                 | 当前等级                                          | Integer  |
-| scores                       | 能力 / 责任 / 关怀 得分                           | Object   |
-| familiarity                  | 社区熟悉度指标                                    | Object   |
-| nextLevel                    | 升级要求；已满级时可能为 null                     | Object/Option |
-| nextLevel.hardRequirements   | 硬性门槛（如无处罚、90 天无违规）                 | ArrayList |
-| nextLevel.eligible           | 是否满足全部升级条件                              | Boolean  |
-| lv4Candidate                 | 是否 Lv.4 候选                                    | Boolean  |
-| quotas                       | 各类操作配额（创建主题/回帖/点赞/收藏/举报等）    | ArrayList |
-| updating                     | 是否正在重新计算                                  | Boolean  |
-
-## 内容长度上限
-
-> 获取内容长度上限 `/api/v1/content-length-limit` GET **需要Cookie**
-
-### 响应体
-
-```json
-{ "level": 1, "topicMaxLength": 20000, "replyMaxLength": 2000 }
-```
-
-| KEY            | VALUE        | TYPE    |
-| -------------- | ------------ | ------- |
-| level          | 当前等级     | Integer |
-| topicMaxLength | 主题字数上限 | Integer |
-| replyMaxLength | 回帖字数上限 | Integer |
-
-## 合集配额用量
-
-> 获取合集配额用量 `/api/v1/topic-collection-usage` GET **需要Cookie**
-
-### 响应体
-
-```json
-{ "currentLevel": 1, "limitCount": 5, "usedCount": 0, "remainingCount": 5 }
-```
-
-| KEY            | VALUE        | TYPE    |
-| -------------- | ------------ | ------- |
-| currentLevel   | 当前等级     | Integer |
-| limitCount     | 合集数量上限 | Integer |
-| usedCount      | 已用数量     | Integer |
-| remainingCount | 剩余数量     | Integer |
+| KEY                        | VALUE                                          | TYPE          |
+| -------------------------- | ---------------------------------------------- | ------------- |
+| currentLevel               | 当前等级                                       | Integer       |
+| scores                     | 能力 / 责任 / 关怀 得分                        | Object        |
+| familiarity                | 社区熟悉度指标                                 | Object        |
+| nextLevel                  | 升级要求；已满级时可能为 null                  | Object/Option |
+| nextLevel.hardRequirements | 硬性门槛（如无处罚、90 天无违规）              | ArrayList     |
+| nextLevel.eligible         | 是否满足全部升级条件                           | Boolean       |
+| lv4Candidate               | 是否 Lv.4 候选                                 | Boolean       |
+| quotas                     | 各类操作配额（创建主题/回帖/点赞/收藏/举报等） | ArrayList     |
+| updating                   | 是否正在重新计算                               | Boolean       |
 
 ## 值得注意的
 
 - 等级体系由 **能力 / 责任 / 关怀** 三维得分叠加 **社区熟悉度** 共同决定，并受硬性门槛限制。
-- 阅读埋点（见阅读会话接口）会折算成 `effectiveReadingSeconds`、`postsRead` 等熟悉度指标。
+- 阅读埋点（见[阅读会话](../reading-session.md)）会折算成 `effectiveReadingSeconds`、`postsRead` 等熟悉度指标。
 
 ## 示例
 
@@ -115,11 +80,6 @@ use std::sync::Arc;
 
 const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
 
-async fn get(client: &Client, path: &str) -> Result<Value> {
-    Ok(client.get(format!("{BASE_URL}{path}"))
-        .send().await?.error_for_status()?.json().await?)
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
@@ -130,20 +90,12 @@ async fn main() -> Result<()> {
         .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
         .send().await?.error_for_status()?;
 
-    // 等级进度
-    let progress = get(&client, "/level-progress").await?;
+    let progress: Value = client.get(format!("{BASE_URL}/level-progress"))
+        .send().await?.error_for_status()?.json().await?;
+
     println!("当前等级: Lv.{}", progress["currentLevel"]);
     println!("下一级可升级: {}", progress["nextLevel"]["eligible"]);
     println!("配额项数: {}", progress["quotas"].as_array().map_or(0, Vec::len));
-
-    // 内容长度上限
-    let limit = get(&client, "/content-length-limit").await?;
-    println!("主题上限 {} / 回帖上限 {}", limit["topicMaxLength"], limit["replyMaxLength"]);
-
-    // 合集配额用量
-    let usage = get(&client, "/topic-collection-usage").await?;
-    println!("合集 {}/{}", usage["usedCount"], usage["limitCount"]);
-
     Ok(())
 }
 ```
@@ -157,19 +109,10 @@ with requests.Session() as s:
     s.post(f"{BASE_URL}/session",
            json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
 
-    # 等级进度
     progress = s.get(f"{BASE_URL}/level-progress").raise_for_status().json()
     print("当前等级: Lv.", progress["currentLevel"])
     print("下一级可升级:", progress["nextLevel"]["eligible"])
     print("配额项数:", len(progress["quotas"]))
-
-    # 内容长度上限
-    limit = s.get(f"{BASE_URL}/content-length-limit").raise_for_status().json()
-    print("主题上限", limit["topicMaxLength"], "/ 回帖上限", limit["replyMaxLength"])
-
-    # 合集配额用量
-    usage = s.get(f"{BASE_URL}/topic-collection-usage").raise_for_status().json()
-    print("合集", usage["usedCount"], "/", usage["limitCount"])
 ```
 ```typescript
 const BASE_URL = "https://cdsq.dao3.fun/api/v1";
@@ -205,12 +148,6 @@ async function main() {
   console.log("当前等级: Lv." + progress.currentLevel);
   console.log("下一级可升级:", progress.nextLevel.eligible);
   console.log("配额项数:", progress.quotas.length);
-
-  const limit = await (await request("/content-length-limit")).json();
-  console.log("主题上限", limit.topicMaxLength, "/ 回帖上限", limit.replyMaxLength);
-
-  const usage = await (await request("/topic-collection-usage")).json();
-  console.log("合集", usage.usedCount, "/", usage.limitCount);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -56,7 +56,7 @@
 - 路径中 `{sessionId}` 由前端生成，`{batchNo}` 为批次序号；成功返回 `201 Created`。
 - `visiblePosts` 至少包含 1 项，否则返回 `400 VALIDATION_FAILED`。
 - 服务端会把 `elapsedMs` 折算为 `effectiveReadingSeconds`，`acceptedElapsedMs` 可能小于上报值。
-- 熟悉度会计入[等级进度](./user/level.md#等级进度)。
+- 熟悉度会计入[等级进度](./user/level-progress.md)。
 
 ## 示例
 

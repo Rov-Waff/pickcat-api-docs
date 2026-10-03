@@ -1,19 +1,19 @@
-# 投稿审核
+# 投稿审核列表
 
 > 获取投稿审核列表 `/api/v1/post-submissions` GET **需要Cookie**
 
 既用于版务的审核队列，也用于个人主页查看自己的待审投稿。
 
-### Query
+## Query
 
-| KEY         | 观测值                             | 说明                      |
-| ----------- | ---------------------------------- | ------------------------- |
+| KEY         | 观测值                             | 说明                       |
+| ----------- | ---------------------------------- | -------------------------- |
 | contentRole | `TOPIC_REPLY` / `TOPIC_FIRST_POST` | 内容角色（回帖 / 主题首楼）|
-| status      | `PENDING` / `REJECTED`             | 审核状态筛选              |
-| topicId     | 目标主题UUID                       | 可选，按主题过滤          |
-| limit       | `100` / `20`                       | 每页数量                  |
+| status      | `PENDING` / `REJECTED`             | 审核状态筛选               |
+| topicId     | 目标主题UUID                       | 可选，按主题过滤           |
+| limit       | `100` / `20`                       | 每页数量                   |
 
-### 响应体
+## 响应体
 
 ```json
 {
@@ -46,36 +46,11 @@
 | baseRevision                 | 基线版本，可为 null               | String/Option |
 | createdAt / updatedAt        | 创建/更新时间                     | DateTime      |
 
-## 获取单条投稿
-
-> 获取投稿详情 `/api/v1/post-submissions/{submissionId}` GET **需要Cookie**
-
-### 响应体
-
-```json
-{
-  "id": "01a0ff33-69c6-74a3-ba97-6370b8079f6c",
-  "status": "PENDING_PROVIDER",
-  "contentRole": "TOPIC_REPLY",
-  "request": { "topicId": "01a0c95a-...", "markdown": "合影", "replyToPostNumber": 1 },
-  "riskLevel": null,
-  "topicId": "01a0c95a-...",
-  "postId": "01a0ff33-...",
-  "postNumber": 52,
-  "baseRevision": null,
-  "createdAt": "2026-10-03T00:39:14.613Z",
-  "updatedAt": "2026-10-03T00:39:14.613Z"
-}
-```
-
-字段与上表列表项一致。
-
 ## 值得注意的
 
-- 同一接口既用于**版务审核队列**，也用于个人主页查看**自己的待审投稿**（`?tab=topics&publication=PENDING`）。
-- `status` 观测到 `PENDING`、`PENDING_PROVIDER`（送第三方审核中）、`REJECTED`；推测还有 `APPROVED` 等终态。
 - `request` 随 `contentRole` 变化：主题首楼含 `title`/`kind`/`tagIds`/`markdown`，回帖含 `topicId`/`markdown`/`replyToPostNumber`。
-- 审核期间主题尚未对他人可见。
+- `status` 观测到 `PENDING`、`PENDING_PROVIDER`（送第三方审核中）、`REJECTED`；推测还有 `APPROVED` 等终态。
+- 审核期间主题尚未对他人可见。单条详情见[投稿详情](./submission-detail.md)。
 
 ## 示例
 
@@ -87,7 +62,6 @@ use serde_json::{json, Value};
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
-const TOPIC_ID: &str = "01a0eb91-5d11-7fb0-b998-179add93620f";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -100,9 +74,7 @@ async fn main() -> Result<()> {
         .send().await?.error_for_status()?;
 
     let subs: Value = client
-        .get(format!(
-            "{BASE_URL}/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&topicId={TOPIC_ID}&limit=100"
-        ))
+        .get(format!("{BASE_URL}/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&limit=100"))
         .send().await?.error_for_status()?.json().await?;
 
     println!("待审核: {}", subs["items"].as_array().map_or(0, Vec::len));
@@ -113,23 +85,19 @@ async fn main() -> Result<()> {
 import requests
 
 BASE_URL = "https://cdsq.dao3.fun/api/v1"
-TOPIC_ID = "01a0eb91-5d11-7fb0-b998-179add93620f"
 
 with requests.Session() as s:
     # 先登录 (见《登录》)
     s.post(f"{BASE_URL}/session",
            json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
 
-    subs = s.get(f"{BASE_URL}/post-submissions", params={
-        "contentRole": "TOPIC_REPLY", "status": "PENDING",
-        "topicId": TOPIC_ID, "limit": 100,
-    }).raise_for_status().json()
-
+    subs = s.get(f"{BASE_URL}/post-submissions",
+                 params={"contentRole": "TOPIC_REPLY", "status": "PENDING", "limit": 100}
+                 ).raise_for_status().json()
     print("待审核:", len(subs["items"]))
 ```
 ```typescript
 const BASE_URL = "https://cdsq.dao3.fun/api/v1";
-const TOPIC_ID = "01a0eb91-5d11-7fb0-b998-179add93620f";
 const jar = new Map<string, string>();
 
 function cookieHeader(): string {
@@ -159,7 +127,7 @@ async function main() {
   });
 
   const subs = await (await request(
-    `/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&topicId=${TOPIC_ID}&limit=100`
+    "/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&limit=100"
   )).json();
   console.log("待审核:", subs.items.length);
 }
