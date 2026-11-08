@@ -2,7 +2,7 @@
 
 > 登出 `/api/v1/session` DELETE **需要Cookie**
 
-调用后当前 Session 立即失效，之后访问受保护接口会返回 `401 UNAUTHENTICATED`。
+调用后当前 Session 立即失效。之后访问受保护接口通常返回 `401 AUTHENTICATION_REQUIRED`；`GET /api/v1/session` 自身返回 `401 UNAUTHENTICATED`。
 
 ## 响应体
 
@@ -10,7 +10,7 @@
 
 ## 值得注意的
 
-- 实测确认：`DELETE /api/v1/session` 返回 `204`，随后 `GET /api/v1/session` 返回 `401 UNAUTHENTICATED`。
+- 实测确认：`DELETE /api/v1/session` 返回 `204`；无 Cookie 调用同样返回 `204`（幂等），随后 `GET /api/v1/session` 返回 `401 UNAUTHENTICATED`。
 - 登出会清除服务端会话，客户端保存的 Cookie 即使仍在也已失效。
 
 ## 示例
@@ -19,7 +19,6 @@
 ```rust
 use anyhow::Result;
 use reqwest::{cookie::Jar, Client};
-use serde_json::json;
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
@@ -29,10 +28,9 @@ async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
     // 登出
     let resp = client.delete(format!("{BASE_URL}/session"))
@@ -43,14 +41,14 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 with requests.Session() as s:
-    # 先登录 (见《登录》)
-    s.post(f"{BASE_URL}/session",
-           json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
     # 登出
     resp = s.delete(f"{BASE_URL}/session")
@@ -80,12 +78,10 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》)
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "xxxx@gmail.com", password: "P@ssW0rd123" }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
   // 登出
   const resp = await request("/session", { method: "DELETE" });

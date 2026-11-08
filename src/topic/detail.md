@@ -10,6 +10,7 @@
 {
   "id": "01a0eb91-5d11-7fb0-b998-179add93620f",
   "title": "【共琢一轮月】……获奖名单公示",
+  "headerFileId": null,
   "kind": "ANNOUNCEMENT",
   "author": { "id": "...", "username": "hajimes", "avatar": { "...": "..." }, "displayedBadge": { "...": "..." } },
   "tags": [ { "id": "...", "slug": "events-competitions", "name": "活动与赛事" } ],
@@ -27,7 +28,7 @@
     "deleted": false, "children": [], "currentRevision": 2, "likeCount": 4,
     "pinned": false, "cookedHtml": "<p>...</p>", "author": { "...": "..." },
     "createdAt": "...", "editedAt": "...",
-    "viewerCapabilities": { "canEdit": false, "canLike": true, "canBookmark": true, "canReport": true, "canSelectAnswer": false },
+    "viewerCapabilities": { "canPin": false, "canEdit": false, "canDelete": false, "canLike": true, "canBookmark": true, "canReport": true, "canSelectAnswer": false },
     "viewerState": { "liked": false, "bookmarkId": null, "selectedAnswer": false }
   },
   "repliesTruncated": true,
@@ -35,7 +36,9 @@
   "eventsTruncated": false,
   "viewerCapabilities": {
     "canEdit": false, "canReply": true, "canDelete": false, "canBookmark": true,
-    "canClose": false, "canReopen": false, "canPinGlobally": false, "pinnableTagIds": []
+    "canClose": false, "canReopen": false, "canPinGlobally": false,
+    "canUnpin": false, "canUnselectAnswer": false, "canClearDuplicate": false,
+    "canRequestDuplicate": false, "canMarkDuplicate": false, "pinnableTagIds": []
   },
   "viewerState": { "bookmarkId": null }
 }
@@ -44,6 +47,7 @@
 | KEY                  | VALUE                                       | TYPE            |
 | -------------------- | ------------------------------------------- | --------------- |
 | id / title / kind    | 主题UUID / 标题 / 类型                      | String          |
+| headerFileId         | 主题头图文件 ID，可为 null                  | String/Option   |
 | author               | 作者（含头像、展示徽章）                    | Object          |
 | tags                 | 所属标签                                    | ArrayList       |
 | replyCount / viewCount / likeCount / bookmarkCount | 计数          | Integer         |
@@ -53,7 +57,7 @@
 | firstPost            | 1 楼内容（结构同楼层列表项）                | Object          |
 | repliesTruncated     | 回复是否被截断（需要另外请求楼层列表）      | Boolean         |
 | events / eventsTruncated | 主题事件流                              | ArrayList/Boolean |
-| viewerCapabilities   | 当前用户可执行的操作                        | Object          |
+| viewerCapabilities   | 当前用户可执行的操作（含 `canEdit`/`canReply`/`canDelete`/`canBookmark`/`canClose`/`canReopen`/`canPinGlobally`/`canUnpin`/`canUnselectAnswer`/`canClearDuplicate`/`canRequestDuplicate`/`canMarkDuplicate` 等） | Object |
 | viewerState          | 当前用户与主题的关系（如是否收藏）          | Object          |
 
 ## 值得注意的

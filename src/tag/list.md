@@ -21,7 +21,9 @@
     { "id": "01a0e6c6-...-f57cda4c985e", "slug": "box", "name": "神奇代码岛", "description": "神奇代码岛岛民专属交流区……" },
     { "id": "01a0e835-...-6bebe7ba21c9", "slug": "neko", "name": "KittenN创作", "description": "KittenN 专属交流阵地……" },
     { "id": "01a0e838-...-ca17bf6e8d22", "slug": "coconut", "name": "CoCo应用创作", "description": "CoCo专属交流区……" },
-    { "id": "01a0e83b-...-e3b033e02a5f", "slug": "python", "name": "Python乐园", "description": "Python内容聚集地……" }
+    { "id": "01a0e83b-...-e3b033e02a5f", "slug": "python", "name": "Python乐园", "description": "Python内容聚集地……" },
+    { "id": "01a14932-...-904d45afc7f5", "slug": "ghost-is-coming", "name": "2026 万圣奇想夜", "description": "2026 万圣奇想夜活动分区……" },
+    { "id": "01a18c60-...-fc9e69182cfa", "slug": "box-play", "name": "BoxPlay", "description": "记录 AI 游戏从灵感、迭代、试玩到发布的完整过程……" }
   ]
 }
 ```
@@ -35,8 +37,8 @@
 
 ## 值得注意的
 
-- 全站共 9 个分区，`slug` 即[主题列表](../topic/list.md#主题列表)过滤时 `tag` 参数的值。
-- 加 `assignable=true` 后只返回 **6 个可发帖分区**（creative-works / learning-technology / q-and-a / events-competitions / interest-plaza / box），不含 neko、coconut、python（属「频道」型分区，需在对应频道内发帖）。
+- 截至 2026-11-08，全站共 **11** 个分区；`slug` 即[主题列表](../topic/list.md#主题列表)过滤时 `tag` 参数的值。
+- `assignable=true` 当前也返回全部 11 个（包括 `neko`、`coconut`、`python` 及活动标签）；如果只想要普通发帖分区，需要按 `slug` 自行过滤。
 
 ## 示例
 

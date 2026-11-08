@@ -32,19 +32,22 @@ use serde_json::{json, Value};
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
-const USER_ID: &str = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195";
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
-    let updated: Value = client.patch(format!("{BASE_URL}/users/{USER_ID}"))
+    // 取当前登录用户 ID，PATCH 只能改自己
+    let me: Value = client.get(format!("{BASE_URL}/session"))
+        .send().await?.error_for_status()?.json().await?;
+    let user_id = me["user"]["id"].as_str().unwrap_or_default();
+
+    let updated: Value = client.patch(format!("{BASE_URL}/users/{user_id}"))
         .json(&json!({ "bio": "Acrb" }))
         .send().await?.error_for_status()?.json().await?;
     println!("新简介: {}", updated["bio"]);
@@ -52,23 +55,22 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
-USER_ID = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195"
-
 with requests.Session() as s:
-    # 先登录 (见《登录》)
-    s.post(f"{BASE_URL}/session",
-           json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
-    updated = s.patch(f"{BASE_URL}/users/{USER_ID}", json={"bio": "Acrb"}
+    me = s.get(f"{BASE_URL}/session").raise_for_status().json()
+    user_id = me["user"]["id"]
+    updated = s.patch(f"{BASE_URL}/users/{user_id}", json={"bio": "Acrb"}
                       ).raise_for_status().json()
     print("新简介:", updated["bio"])
 ```
 ```typescript
 const BASE_URL = "https://pickcat.dao3.fun/api/v1";
-const USER_ID = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195";
 const jar = new Map<string, string>();
 
 function cookieHeader(): string {
@@ -90,14 +92,14 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》)
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "xxxx@gmail.com", password: "P@ssW0rd123" }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
-  const updated = await (await request(`/users/${USER_ID}`, {
+  const me = await (await request("/session")).json();
+  const userId: string = me.user.id;
+  const updated = await (await request(`/users/${userId}`, {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ bio: "Acrb" }),

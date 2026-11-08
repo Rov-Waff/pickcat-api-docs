@@ -14,9 +14,10 @@
 ```json
 {
   "items": [
-    { "id": "...", "kind": "POSTED", "occurredAt": "2026-09-27T05:09:55.600Z", "title": "做了一个联机小测试，欢迎大家体验", "level": null },
-    { "id": "...", "kind": "LIKED",  "occurredAt": "2026-09-26T05:24:34.925Z", "title": "Q&A | 关于pickCat……", "level": null },
-    { "id": "...", "kind": "LEVEL_UP", "occurredAt": "2026-09-22T13:39:43.876Z", "title": null, "level": 1 }
+    { "id": "...", "kind": "POSTED", "occurredAt": "2026-09-27T05:09:55.600Z", "title": "做了一个联机小测试，欢迎大家体验", "level": null, "topicId": "...", "postId": "...", "postNumber": 1 },
+    { "id": "...", "kind": "REPLIED", "occurredAt": "2026-09-26T05:24:34.925Z", "title": "Q&A | 关于pickCat……", "level": null, "topicId": "...", "postId": "...", "postNumber": 8 },
+    { "id": "...", "kind": "LIKED", "occurredAt": "2026-09-25T05:24:34.925Z", "title": "Q&A | 关于pickCat……", "level": null, "topicId": "...", "postId": "...", "postNumber": 3 },
+    { "id": "...", "kind": "LEVEL_UP", "occurredAt": "2026-09-22T13:39:43.876Z", "title": null, "level": 1, "topicId": null, "postId": null, "postNumber": null }
   ],
   "pageInfo": { "hasNextPage": false, "nextCursor": null }
 }
@@ -25,10 +26,11 @@
 | KEY        | VALUE                                 | TYPE           |
 | ---------- | ------------------------------------- | -------------- |
 | id         | 动态UUID                              | String         |
-| kind       | `POSTED`/`LIKED`/`LEVEL_UP`           | String         |
+| kind       | `POSTED`/`REPLIED`/`LIKED`/`LEVEL_UP`  | String         |
 | occurredAt | 发生时间                              | DateTime       |
 | title      | 关联帖子标题，升级类动态为 null       | String/Option  |
 | level      | 升级后的等级，仅 `LEVEL_UP` 时非 null | Integer/Option |
+| topicId / postId / postNumber | 关联主题/楼层定位信息，可为 null | String/Integer/Option |
 
 ## 值得注意的
 

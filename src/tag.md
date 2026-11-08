@@ -9,4 +9,4 @@
 | GET    | `/api/v1/tags`                      | 否     | [全部分区标签](./tag/list.md)        |
 | GET    | `/api/v1/tags/{slug}/sidebar-links` | 否     | [分区侧边子标签](./tag/sidebar-links.md) |
 
-> 全站共 9 个分区，`slug` 即[主题列表](./topic/list.md#主题列表)过滤时 `tag` 参数的值。
+> 截至 2026-11-08，`GET /tags` 返回 11 个分区（含活动标签 `ghost-is-coming`、`box-play`）；`slug` 即[主题列表](./topic/list.md#主题列表)过滤时 `tag` 参数的值。

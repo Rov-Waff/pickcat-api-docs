@@ -6,7 +6,7 @@
 
 | METHOD | URL                                                    | COOKIE | 说明                                                       |
 | ------ | ------------------------------------------------------ | ------ | ---------------------------------------------------------- |
-| POST   | `/api/v1/session`                                      | 否     | [登录](./auth/login.md)，成功后通过 Set-Cookie 下发 Session |
+| POST   | `/api/v1/session`                                      | 否     | [登录](./auth/login.md)，需 CAPTCHA，成功后通过 Set-Cookie 下发 Session |
 | GET    | `/api/v1/session`                                      | 是     | [获取当前会话](./auth/session.md)                           |
 | DELETE | `/api/v1/session`                                      | 是     | [登出](./auth/logout.md)，使当前 Session 失效              |
 | POST   | `/api/v1/registrations`                                | 否     | [发起注册](./auth/register.md)，仅创建待验证的注册会话      |
@@ -21,3 +21,5 @@
 > 会话 Cookie 名为 `pickcat_session`（HttpOnly / Secure / SameSite=Lax，有效期 7 天）。
 >
 > 入站考试题库（非 API）见[考题与正确答案](./auth/exam-questions.md)。
+>
+> 由于登录需要阿里云 CAPTCHA，本模块之外需要登录的示例统一从环境变量 `PICKCAT_SESSION` 读取已导出的 Cookie，而不是重新执行登录。

@@ -27,7 +27,7 @@
 | title                                            | 标题                                 | String           |
 | kind                                             | `DISCUSSION`/`QUESTION`/`ANNOUNCEMENT` | String         |
 | excerpt                                          | 摘要                                 | String           |
-| author                                           | 作者（id/username/avatar/displayedBadge） | Object       |
+| author                                           | 作者（id/username/avatar；列表项不返回 displayedBadge） | Object |
 | tags                                             | 所属标签                             | ArrayList        |
 | replyCount / viewCount / likeCount / bookmarkCount | 回复/浏览/点赞/收藏数              | Integer          |
 | questionState                                    | 问答状态，仅 `QUESTION` 时存在       | Object/Option    |
@@ -39,6 +39,7 @@
 ## 值得注意的
 
 - 分页统一为 `pageInfo.hasNextPage` / `pageInfo.nextCursor`，取下一页时把 `nextCursor` 作为 `cursor` 参数回传。
+- `limit` 实测上限为 50；传入 100 会返回 `400 VALIDATION_FAILED`。
 - 多标签过滤时同一个 `tag` 参数会重复出现，例如 `?tag=interest-plaza&tag=creative-works&tagMode=all`。
 - 首页推荐请使用[首页推荐](./recommendations.md)，单次返回 20 条并用 `reason` 解释推荐原因。
 

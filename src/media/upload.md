@@ -2,7 +2,7 @@
 
 > 上传图片 `/api/v1/files` POST **需要Cookie**
 
-请求头需带 `Idempotency-Key`，`content-type` 为 `multipart/form-data`。
+建议携带 `Idempotency-Key`（同一文件重试时复用同一个 key），`content-type` 为 `multipart/form-data`。
 
 ## 请求体
 
@@ -33,7 +33,7 @@
 
 ## 值得注意的
 
-- 所有写接口都需要 `Idempotency-Key` 请求头。
+- 上传接口建议携带 `Idempotency-Key`；目前只有注册接口强制要求，其余写接口未强制。
 - 上传后文件存储配额会相应增加；同一张图会生成多尺寸，计费通常大于原图。
 - 发帖正文中通过 `![fileId]` 引用图片（不是 URL）。
 
@@ -45,7 +45,7 @@ use anyhow::Result;
 use reqwest::header::HeaderName;
 use reqwest::multipart;
 use reqwest::{cookie::Jar, Client};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
@@ -55,10 +55,9 @@ async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
     // 需要 reqwest 的 multipart feature
     let bytes = std::fs::read("cover.png")?;
@@ -77,15 +76,16 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import uuid
+
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 with requests.Session() as s:
-    # 先登录 (见《登录》)
-    s.post(f"{BASE_URL}/session",
-           json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
     with open("cover.png", "rb") as f:
         up = s.post(
@@ -121,12 +121,10 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》)
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "xxxx@gmail.com", password: "P@ssW0rd123" }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
   // FormData 会自动设置 content-type
   const form = new FormData();

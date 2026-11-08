@@ -15,8 +15,13 @@
       "username": "CarbonPremium",
       "createdAt": "2026-10-02T08:46:15.771Z",
       "avatar": { "type": "PRESET", "id": 1, "url": "/api/v1/avatars/1?v=..." },
+      "tokenBalance": 7,
       "level": { "current": 1 },
-      "effectivePermissions": []
+      "effectivePermissions": [
+        { "key": "content.publish", "scopes": [{ "type": "SITE" }] },
+        { "key": "content.own.edit", "scopes": [{ "type": "SITE" }] },
+        { "key": "content.like", "scopes": [{ "type": "SITE" }] }
+      ]
     },
     "createdAt": "2026-10-02T10:19:14.833Z",
     "expiresAt": "2026-10-09T10:19:14.833Z",
@@ -34,6 +39,7 @@
 ## 值得注意的
 
 - 与会话相关的响应体均**不含 token**，凭据仅通过 Cookie 传递。
+- `user.tokenBalance` 为代币余额；`user.effectivePermissions` 是对象数组，元素包含 `key` 与 `scopes`。
 - 通过入站考试后再次调用本接口，`user.level.current` 会由 `0` 变为 `1`，同时 `expiresAt` 顺延。
 - 会话 Cookie 名为 `pickcat_session`（HttpOnly / Secure / SameSite=Lax，有效期 7 天）。
 - 登出请使用[登出](./logout.md)（`DELETE /api/v1/session`）。
@@ -44,22 +50,19 @@
 ```rust
 use anyhow::Result;
 use reqwest::{cookie::Jar, Client};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
-const USERNAME: &str = "xxxx@gmail.com";
-const PASSWORD: &str = "P@ssW0rd123";
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录, 会话 Cookie 会保存在 jar 中 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": USERNAME, "password": PASSWORD }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
     // 获取当前会话
     let session: Value = client.get(format!("{BASE_URL}/session"))
@@ -73,15 +76,14 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
-USERNAME = "xxxx@gmail.com"
-PASSWORD = "P@ssW0rd123"
 
 with requests.Session() as s:
-    # 先登录, Session Cookie 会自动保存 (见《登录》)
-    s.post(f"{BASE_URL}/session", json={"username": USERNAME, "password": PASSWORD}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
     # 获取当前会话
     session = s.get(f"{BASE_URL}/session").raise_for_status().json()
@@ -92,8 +94,6 @@ with requests.Session() as s:
 ```
 ```typescript
 const BASE_URL = "https://pickcat.dao3.fun/api/v1";
-const USERNAME = "xxxx@gmail.com";
-const PASSWORD = "P@ssW0rd123";
 const jar = new Map<string, string>();
 
 function cookieHeader(): string {
@@ -115,12 +115,10 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》), 响应的 Set-Cookie 会存入 jar
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
   // 获取当前会话
   const session = await (await request("/session")).json();

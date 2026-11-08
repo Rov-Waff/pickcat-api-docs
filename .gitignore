@@ -1,3 +1,7 @@
 book
 *.har
+Pickcat_API_分析.md
 Pickat_API_分析.md
+__pycache__/
+*.py[cod]
+.venv/

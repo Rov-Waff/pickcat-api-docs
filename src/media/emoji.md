@@ -2,7 +2,7 @@
 
 > 获取表情图片 `/api/v1/emojis/{emojiName}/image` GET
 
-`emoji-read` 为一次性的读取 ID，用于去重与埋点：
+`emoji-read` 是**可选**的一次性读取 ID，用于去重与埋点；不带该参数也能正常读取：
 
 ```
 /api/v1/emojis/{emojiName}/image?emoji-read={uuid}
@@ -15,7 +15,7 @@
 ## 值得注意的
 
 - 表情名可从帖子正文的 `cookedHtml` 中提取（形如 `gif_expression_...`）。
-- 通常直接由 `<img>` 标签加载，不需要 Cookie。
+- 通常直接由 `<img>` 标签加载，不需要 Cookie；省略 `emoji-read` 也可正常返回图片。
 
 ## 示例
 

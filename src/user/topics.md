@@ -39,7 +39,7 @@
 | title                                             | 标题                                  | String          |
 | kind                                              | `DISCUSSION`/`QUESTION`/`ANNOUNCEMENT` | String         |
 | excerpt                                           | 摘要                                  | String          |
-| author                                            | 作者（含头像、展示徽章）              | Object          |
+| author                                            | 作者（含头像；列表项不返回展示徽章）  | Object          |
 | tags                                              | 所属标签                              | ArrayList       |
 | replyCount / viewCount / likeCount / bookmarkCount | 回复/浏览/点赞/收藏数                | Integer         |
 | questionState                                     | 问答状态，仅 `QUESTION` 时存在        | Object/Option   |

@@ -2,19 +2,36 @@
 
 > 登录 `/api/v1/session` POST
 
+> ⚠️ **登录已接入 CAPTCHA**
+>
+> 登录请求现在需要携带阿里云验证码结果 `captchaVerifyParam`。该参数必须由前端验证码组件在真实浏览器中生成，脚本无法凭空构造，因此**通过接口自动登录获取 Session 并不现实**。脚本场景建议先在浏览器手动登录，再导出并复用 `pickcat_session` Cookie。
+
 ## 请求体
 
 ```json
-{ 
-    "username": "xxxx@gmail.com", 
-    "password": "P@ssW0rd123"
+{
+    "account": "xxxx@gmail.com",
+    "password": "P@ssW0rd123",
+    "captchaVerifyParam": "<base64(阿里云验证码回调 JSON)>"
 }
 ```
 
-| KEY      | VALUE                      | TYPE   |
-| -------- | -------------------------- | ------ |
-| username | 用户名，也就是你账号的邮箱 | String |
-| password | 密码                       | String |
+| KEY                 | VALUE                                              | TYPE   |
+| ------------------- | -------------------------------------------------- | ------ |
+| account             | 账号，可填邮箱或用户名                             | String |
+| password            | 密码                                               | String |
+| captchaVerifyParam  | 阿里云验证码结果，Base64 编码后的回调 JSON         | String |
+
+`captchaVerifyParam` 解码后形如：
+
+```json
+{
+    "certifyId": "...",
+    "sceneId": "1icer78a",
+    "isSign": true,
+    "securityToken": "..."
+}
+```
 
 ## 响应体
 
@@ -25,8 +42,13 @@
       "username": "CarbonPremium",
       "createdAt": "2026-10-02T08:46:15.771Z",
       "avatar": { "type": "PRESET", "id": 1, "url": "/api/v1/avatars/1?v=..." },
+      "tokenBalance": 7,
       "level": { "current": 1 },
-      "effectivePermissions": []
+      "effectivePermissions": [
+        { "key": "content.publish", "scopes": [{ "type": "SITE" }] },
+        { "key": "content.own.edit", "scopes": [{ "type": "SITE" }] },
+        { "key": "content.like", "scopes": [{ "type": "SITE" }] }
+      ]
     },
     "createdAt": "2026-10-02T10:19:14.833Z",
     "expiresAt": "2026-10-09T10:19:14.833Z",
@@ -46,21 +68,31 @@
 
 
 
-| KEY                  | VALUE              | TYPE          |
-| -------------------- | ------------------ | ------------- |
-| id                   | 用户UUID           | String        |
-| username             | 用户昵称           | String        |
-| createdAt            | 账户创建时间       | DateTime      |
-| avatar               | 头像               | Object        |
-| level                | 用户等级           | Object        |
-| effectivePermissions | 特殊权限（含义未验证） | ArrayList/Vec |
+| KEY                  | VALUE                          | TYPE          |
+| -------------------- | ------------------------------ | ------------- |
+| id                   | 用户UUID                       | String        |
+| username             | 用户昵称                       | String        |
+| createdAt            | 账户创建时间                   | DateTime      |
+| avatar               | 头像                           | Object        |
+| tokenBalance         | 代币余额（字段含义推测）       | Integer       |
+| level                | 用户等级                       | Object        |
+| effectivePermissions | 特殊权限列表，元素含 key/scopes | ArrayList/Vec |
+
+### effectivePermissions 元素
+
+| KEY    | VALUE                          | TYPE          |
+| ------ | ------------------------------ | ------------- |
+| key    | 权限标识，如 `content.publish` | String        |
+| scopes | 生效范围，如 `[{"type":"SITE"}]` | ArrayList/Vec |
 
 ## 值得注意的
 
+- **登录新增了 CAPTCHA**：`captchaVerifyParam` 来自前端阿里云验证码组件，无法仅靠脚本生成；没有有效验证码时登录会失败。
+- 因此**用接口登录获取 Session 并不现实**。推荐在浏览器手动登录后，从开发者工具复制 `pickcat_session` Cookie 供脚本复用；已有 Cookie 也可通过 [`GET /api/v1/session`](./session.md) 验证是否仍有效。
+- 账号字段已由 `username` 改为 `account`，邮箱或用户名均可。
 - 与主站不同，Pickcat使用Session鉴权，而不是JWT，因此，返回体**不含 token**，会话凭据通过 HTTP头部`Set-Cookie` 下发
 - Session有效期 **7 天**
 - 成功返回 `201 Created`，响应头包含 `location: /api/v1/session`。
-- `username` 字段填邮箱或用户名均可，统一命名为 `username`。
 
 ## 示例
 <!-- langtabs-start -->
@@ -73,15 +105,19 @@ use std::sync::Arc;
 
 // 注意: 已包含 /api/v1
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
-const USERNAME: &str = "xxxx@gmail.com";
+const ACCOUNT: &str = "xxxx@gmail.com";
 const PASSWORD: &str = "P@ssW0rd123";
+// 必须由浏览器中的阿里云验证码组件生成，脚本无法凭空构造
+const CAPTCHA_VERIFY_PARAM: &str = "<base64(阿里云验证码回调 JSON)>";
 
 async fn login(client: &Client) -> Result<Value> {
+    // 没有有效的 CAPTCHA_VERIFY_PARAM 时，该请求会失败
     let resp = client
         .post(format!("{BASE_URL}/session")) // -> /api/v1/session
         .json(&json!({
-            "username": USERNAME,
+            "account": ACCOUNT,
             "password": PASSWORD,
+            "captchaVerifyParam": CAPTCHA_VERIFY_PARAM,
         }))
         .send()
         .await?
@@ -138,14 +174,21 @@ async fn main() -> Result<()> {
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
-USERNAME = "xxxx@gmail.com"
+ACCOUNT = "xxxx@gmail.com"
 PASSWORD = "P@ssW0rd123"
+# 必须由浏览器中的阿里云验证码组件生成，脚本无法凭空构造
+CAPTCHA_VERIFY_PARAM = "<base64(阿里云验证码回调 JSON)>"
 
 
 def login(session: requests.Session) -> dict:
+    # 没有有效的 CAPTCHA_VERIFY_PARAM 时，该请求会失败
     resp = session.post(
         f"{BASE_URL}/session",
-        json={"username": USERNAME, "password": PASSWORD},
+        json={
+            "account": ACCOUNT,
+            "password": PASSWORD,
+            "captchaVerifyParam": CAPTCHA_VERIFY_PARAM,
+        },
     )
     resp.raise_for_status()  # 非 2xx 抛异常
     return resp.json()
@@ -181,8 +224,10 @@ if __name__ == "__main__":
 ```
 ```typescript
 const BASE_URL = "https://pickcat.dao3.fun/api/v1";
-const USERNAME = "xxxx@gmail.com";
+const ACCOUNT = "xxxx@gmail.com";
 const PASSWORD = "P@ssW0rd123";
+// 必须由浏览器中的阿里云验证码组件生成，脚本无法凭空构造
+const CAPTCHA_VERIFY_PARAM = "<base64(阿里云验证码回调 JSON)>";
 
 // 极简 Cookie jar: 服务端返回的每个 Set-Cookie 只取第一段 name=value
 const jar = new Map<string, string>();
@@ -213,10 +258,15 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function login() {
+  // 没有有效的 CAPTCHA_VERIFY_PARAM 时，该请求会失败
   const res = await request("/session", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
+    body: JSON.stringify({
+      account: ACCOUNT,
+      password: PASSWORD,
+      captchaVerifyParam: CAPTCHA_VERIFY_PARAM,
+    }),
   });
   return res.json();
 }
@@ -248,4 +298,3 @@ main().catch((e) => {
 });
 ```
 <!-- langtabs-end -->
-

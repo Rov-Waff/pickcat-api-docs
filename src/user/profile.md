@@ -15,10 +15,12 @@
   "region": null,
   "showFollowingList": true,
   "showFollowersList": true,
+  "backgroundFileId": null,
+  "profileVersion": "9bfcea5e-b26e-4868-8c8c-51f70e770907",
   "createdAt": "2026-10-02T08:46:15.771Z",
   "level": { "current": 1 },
   "stats": { "followers": 0, "following": 0, "topics": 0, "replies": 0 },
-  "viewerState": { "following": false, "canFollow": false }
+  "viewerState": { "following": false, "followedBy": false, "canFollow": false, "canReport": false }
 }
 ```
 
@@ -31,6 +33,8 @@
 | region            | 地区，可为 null        | String/Option |
 | showFollowingList | 是否公开「关注」列表   | Boolean       |
 | showFollowersList | 是否公开「粉丝」列表   | Boolean       |
+| backgroundFileId  | 主页背景图文件 ID，可为 null | String/Option |
+| profileVersion    | 资料版本 UUID，可用于缓存失效 | String       |
 | createdAt         | 账户创建时间           | DateTime      |
 | level.current     | 当前等级               | Integer       |
 | stats             | 关注/粉丝/主题/回帖计数 | Object       |
@@ -38,7 +42,7 @@
 
 > `avatar.type` 为 `PRESET` 时，`id` 是预设头像编号，`url` 带 `?v=<内容哈希>`；为 `CUSTOM` 时，`id` 是自定义头像的 `fileId`，`url` 形如 `/api/v1/avatars/{fileId}`。
 >
-> `viewerState.following` 表示当前访问者是否已关注该用户；`canFollow` 表示是否允许关注（自己不能关注自己）。
+> `viewerState.following` / `followedBy` 表示当前访问者与该用户的双向关注关系；`canFollow` 表示是否允许关注（自己不能关注自己）；`canReport` 表示当前访问者是否可以举报该用户。
 
 ## 值得注意的
 

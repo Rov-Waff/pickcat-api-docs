@@ -9,6 +9,10 @@ on:
   push:
     branches: ["main"]
 
+  # 验证 PR 是否能正常构建（不部署）
+  pull_request:
+    branches: ["main"]
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -41,17 +45,20 @@ jobs:
           # book.toml 中的 [preprocessor.langtabs] 需要该插件
           cargo install --version ${LANGTABS_VERSION} mdbook-langtabs
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         id: pages
         uses: actions/configure-pages@v5
       - name: Build with mdBook
         run: mdbook build
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./book
 
   # Deployment job
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

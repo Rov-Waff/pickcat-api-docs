@@ -12,18 +12,32 @@
 ## 响应体
 
 ```json
-{ "items": [], "pageInfo": { "hasNextPage": false, "nextCursor": null } }
+{
+  "items": [
+    {
+      "user": {
+        "id": "01a0fba5-06a4-7518-b863-cebb1ed0de30",
+        "username": "example-user",
+        "avatar": { "type": "PRESET", "id": 7, "url": "/api/v1/avatars/7?v=..." }
+      },
+      "followedAt": "2026-11-05T13:09:04.442Z"
+    }
+  ],
+  "pageInfo": { "hasNextPage": false, "nextCursor": null }
+}
 ```
 
-| KEY      | VALUE      | TYPE      |
-| -------- | ---------- | --------- |
-| items    | 用户列表项 | ArrayList |
-| pageInfo | 分页信息   | Object    |
+| KEY                | VALUE              | TYPE     |
+| ------------------ | ------------------ | -------- |
+| items              | 用户列表           | ArrayList |
+| items[].user       | 精简用户对象（id/username/avatar） | Object |
+| items[].followedAt | 关注发生时间       | DateTime |
+| pageInfo           | 分页信息           | Object   |
 
 ## 值得注意的
 
 - 是否可见受用户资料中的 `showFollowersList` 控制。
-- 本次抓包列表为空，`items` 的具体字段尚未验证（推测为精简用户对象）。
+- `items` 可能为空数组；`cursor` 用于取下一页。
 
 ## 示例
 

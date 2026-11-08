@@ -13,8 +13,8 @@
 
 ```json
 {
-  "strategy": "PERSONALIZED",
-  "items": [ { "...": "主题列表项，每个 item 额外带 reason 字段" } ],
+  "strategy": "TRENDING",
+  "items": [ { "...": "主题列表项，每个 item 额外带 reason / recommendation 字段" } ],
   "pageInfo": {
     "hasNextPage": true,
     "nextCursor": "01a0fc20-11e8-7793-aeb0-5c029c04e0bb.19.AJy7Pzi0eUeQQuLx44dMv2YXqVSk1ro_bcY1vg1H5Go"
@@ -24,9 +24,10 @@
 
 | KEY                | VALUE                          | TYPE          |
 | ------------------ | ------------------------------ | ------------- |
-| strategy           | 推荐策略，如 `PERSONALIZED`    | String        |
+| strategy           | 推荐策略；未登录时实测为 `TRENDING`，登录后可能为 `PERSONALIZED` | String |
 | items              | 主题列表项，额外含 `reason`    | ArrayList     |
 | items[].reason     | 推荐原因，`PINNED`/`TRENDING`  | String        |
+| items[].recommendation | 推荐曝光信息，如 `{ "impressionId": "..." }` | Object |
 | pageInfo.nextCursor| 游标，格式 `<最后一条ID>.<序号>.<签名>` | String/Option |
 
 ## 值得注意的

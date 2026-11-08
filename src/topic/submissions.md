@@ -6,12 +6,12 @@
 
 ## Query
 
-| KEY         | 观测值                             | 说明                       |
-| ----------- | ---------------------------------- | -------------------------- |
-| contentRole | `TOPIC_REPLY` / `TOPIC_FIRST_POST` | 内容角色（回帖 / 主题首楼）|
-| status      | `PENDING` / `REJECTED`             | 审核状态筛选               |
-| topicId     | 目标主题UUID                       | 可选，按主题过滤           |
-| limit       | `100` / `20`                       | 每页数量                   |
+| KEY         | 观测值                                                       | 说明                                        |
+| ----------- | ------------------------------------------------------------ | ------------------------------------------- |
+| contentRole | `TOPIC_FIRST_POST` / `TOPIC_REPLY` / `WORK_COMMENT`          | **必填**，内容角色（主题首楼 / 回帖 / 作品评论） |
+| status      | `PENDING` / `REJECTED`                                       | **必填**，审核状态筛选                      |
+| topicId     | 目标主题UUID                                                 | 可选，按主题过滤                            |
+| limit       | `100` / `20`                                                 | 每页数量                                    |
 
 ## 响应体
 
@@ -48,6 +48,8 @@
 
 ## 值得注意的
 
+- `contentRole` 与 `status` 均为**必填**，缺失时返回 `400 VALIDATION_FAILED`。
+- `contentRole` 实测枚举还包含 `WORK_COMMENT`（作品评论）。
 - `request` 随 `contentRole` 变化：主题首楼含 `title`/`kind`/`tagIds`/`markdown`，回帖含 `topicId`/`markdown`/`replyToPostNumber`。
 - `status` 观测到 `PENDING`、`PENDING_PROVIDER`（送第三方审核中）、`REJECTED`；推测还有 `APPROVED` 等终态。
 - 审核期间主题尚未对他人可见。单条详情见[投稿详情](./submission-detail.md)。
@@ -58,7 +60,7 @@
 ```rust
 use anyhow::Result;
 use reqwest::{cookie::Jar, Client};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::Arc;
 
 const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
@@ -68,10 +70,9 @@ async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
     let subs: Value = client
         .get(format!("{BASE_URL}/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&limit=100"))
@@ -82,14 +83,14 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 with requests.Session() as s:
-    # 先登录 (见《登录》)
-    s.post(f"{BASE_URL}/session",
-           json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
     subs = s.get(f"{BASE_URL}/post-submissions",
                  params={"contentRole": "TOPIC_REPLY", "status": "PENDING", "limit": 100}
@@ -119,12 +120,10 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》)
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "xxxx@gmail.com", password: "P@ssW0rd123" }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
   const subs = await (await request(
     "/post-submissions?contentRole=TOPIC_REPLY&status=PENDING&limit=100"

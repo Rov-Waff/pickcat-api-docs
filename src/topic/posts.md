@@ -2,14 +2,14 @@
 
 > 获取楼层列表 `/api/v1/topics/{topicId}/posts` GET
 
-### Query
+## Query
 
 | KEY   | 观测值 | 说明            |
 | ----- | ------ | --------------- |
 | limit | `50`   | 每页数量        |
 | sort  | `hot`  | 排序方式（热度）|
 
-### 响应体
+## 响应体
 
 ```json
 {

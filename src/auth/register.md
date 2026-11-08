@@ -3,6 +3,13 @@
 > 注册帐号 `/api/v1/registrations` POST
 > 此步骤仅发起注册，并没有注册账号
 
+## 请求头
+
+| KEY             | VALUE              | 说明                                      |
+| --------------- | ------------------ | ----------------------------------------- |
+| content-type    | `application/json` |                                           |
+| Idempotency-Key | `<uuid>`           | **必填**，1~128 个可见 ASCII 字符，防重复 |
+
 ## 请求体
 
 ```json
@@ -13,23 +20,29 @@
 }
 ```
 
+| KEY                | VALUE                                | TYPE   |
+| ------------------ | ------------------------------------ | ------ |
+| username           | 用户名                               | String |
+| email              | 邮箱地址                             | String |
+| captchaVerifyParam | 阿里云验证码结果，Base64 编码的 JSON | String |
+
 ## 响应体
 
 ```json
-{ 
+{
     "id": "01a0fcab-dae0-736a-8d90-583dc20def93",
     "status": "PENDING",
-    "expiresAt": "2026-10-02T12:56:56.460Z" 
+    "expiresAt": "2026-10-02T12:56:56.460Z"
 }
 ```
 
 ## 值得注意的
 
 - `captchaVerifyParam` 是前端把阿里云返回的验证结果 Base64 编码后的字符串。此步骤**不发送密码**。
-- 请求头**必须**携带 `Idempotency-Key`（1~128 个可见 ASCII 字符），用于防止重复发起注册；缺失时返回 `400 IDEMPOTENCY_KEY_REQUIRED`。
+- 请求头**必须**携带 `Idempotency-Key`（1~128 个可见 ASCII 字符），用于防止重复发起注册；缺失时返回 `400 IDEMPOTENCY_KEY_REQUIRED`。每次新的注册请求生成新的 UUID；同一请求重试时复用同一个 key。
 - `registrationId` 用于后续 PATCH；`PENDING` 表示等待邮箱验证；`expiresAt` 为验证有效期。
 - 成功返回 `201 Created`。
-- 由于存在CAPTHA，脚本注册大量账号并不现实
+- 由于存在 CAPTCHA，脚本注册大量账号并不现实。
 
 ## 示例
 
@@ -51,6 +64,8 @@ async fn start_registration(
 ) -> Result<Value> {
     let resp = client
         .post(format!("{BASE_URL}/registrations"))
+        // 每次新的注册请求生成新的 UUID；同一请求重试时复用同一个 key。这里用固定值仅作示例
+        .header("Idempotency-Key", "d384a653-0000-4000-8000-000000000000")
         .json(&json!({
             "username": username,
             "email": email,
@@ -108,7 +123,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-// 简易 base64 
+// 简易 base64
 fn base64_encode(s: &str) -> String {
     const TABLE: &[u8; 64] =
         b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -139,7 +154,7 @@ fn base64_encode(s: &str) -> String {
 ```
 ```python
 import base64
-import json
+import uuid
 
 import requests
 
@@ -155,6 +170,7 @@ def start_registration(
     """发起注册, 返回 { id, status, expiresAt }"""
     resp = session.post(
         f"{BASE_URL}/registrations",
+        headers={"Idempotency-Key": str(uuid.uuid4())},
         json={
             "username": username,
             "email": email,
@@ -228,7 +244,10 @@ async function startRegistration(
 ): Promise<{ id: string; status: string; expiresAt: string }> {
   const res = await request("/registrations", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "Idempotency-Key": crypto.randomUUID(),
+    },
     body: JSON.stringify({ username, email, captchaVerifyParam }),
   });
   return res.json();

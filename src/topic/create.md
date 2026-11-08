@@ -9,7 +9,7 @@
 | KEY             | VALUE                     | 说明                       |
 | --------------- | ------------------------- | -------------------------- |
 | content-type    | `application/json`        |                            |
-| Idempotency-Key | `<uuid>`                  | **必填**，防止重复提交     |
+| Idempotency-Key | `<uuid>`                  | 建议携带；当前未强制，用于防重复提交（重试复用同一个 key） |
 | origin          | `https://pickcat.dao3.fun`   |                            |
 
 ## 请求体
@@ -84,7 +84,7 @@
 
 ## 值得注意的
 
-- 分析发现所有请求都带 `Idempotency-Key` 请求头，但没有它也能正常调用接口。
+- 抓包中所有请求都带 `Idempotency-Key`，但实测**没有它也能正常调用**本接口；建议仍然携带以便服务端去重。注意注册接口是强制要求（见[发起注册](../auth/register.md)）。
 - `markdown` 中**不允许社区外的链接**，否则返回 `422 EXTERNAL_LINK_NOT_ALLOWED`，`details` 会指出字段与命中的域名。
 - 图片先通过 [`POST /files`](../media/upload.md) 上传，正文中以 `![fileId]`（不是 URL）引用。
 - 提交后进入审核队列，可查询[投稿审核列表](./submissions.md)。
@@ -106,10 +106,9 @@ async fn main() -> Result<()> {
     let jar = Arc::new(Jar::default());
     let client = Client::builder().cookie_provider(jar.clone()).build()?;
 
-    // 先登录 (见《登录》)
-    client.post(format!("{BASE_URL}/session"))
-        .json(&json!({ "username": "xxxx@gmail.com", "password": "P@ssW0rd123" }))
-        .send().await?.error_for_status()?;
+    // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    let session_cookie = std::env::var("PICKCAT_SESSION").expect("请先设置 PICKCAT_SESSION");
+    jar.add_cookie_str(&format!("pickcat_session={session_cookie}"), &BASE_URL.parse()?);
 
     let resp = client.post(format!("{BASE_URL}/posts"))
         .header(HeaderName::from_static("idempotency-key"),
@@ -130,15 +129,16 @@ async fn main() -> Result<()> {
 }
 ```
 ```python
+import os
 import uuid
+
 import requests
 
 BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 with requests.Session() as s:
-    # 先登录 (见《登录》)
-    s.post(f"{BASE_URL}/session",
-           json={"username": "xxxx@gmail.com", "password": "P@ssW0rd123"}).raise_for_status()
+    # 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+    s.headers["Cookie"] = f"pickcat_session={os.environ['PICKCAT_SESSION']}"
 
     resp = s.post(
         f"{BASE_URL}/posts",
@@ -180,12 +180,10 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 }
 
 async function main() {
-  // 先登录 (见《登录》)
-  await request("/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "xxxx@gmail.com", password: "P@ssW0rd123" }),
-  });
+  // 复用浏览器中已登录的 Cookie（见《登录》的 CAPTCHA 说明）
+  const pickcatSession = process.env.PICKCAT_SESSION;
+  if (!pickcatSession) throw new Error("请先设置 PICKCAT_SESSION");
+  jar.set("pickcat_session", pickcatSession);
 
   const resp = await request("/posts", {
     method: "POST",

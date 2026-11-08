@@ -4,9 +4,11 @@
 
 > ⚠️ **请注意**
 >
-> - **文档并不完善**：目前只收录了部分模块与接口，大量接口（发帖、回复、点赞、关注、举报、私信、搜索等）尚未整理。
+> - **文档并不完善**：目前只收录了部分模块与接口，大量接口（点赞、关注操作、举报、私信、搜索等）尚未整理。
 > - **部分内容未经验证**：不少字段、状态码与行为来自抓包分析或合理推断，并未逐一实测；文中标注「存疑」「推测」的地方尤其如此。
 > - **由 AI 辅助编写**：本文档由 AI 参与撰写与整理，可能存在错误、遗漏或过时之处。请以实际接口返回为准，发现问题欢迎指出。
+>
+> 最近一次公开接口抽查：**2026-11-08**（仅覆盖无需登录的接口）。
 
 ## 内容
 
@@ -44,12 +46,29 @@ mdbook build          # 静态输出到 book/
 
 > 若未安装 `mdbook-langtabs`，可临时注释掉 `book.toml` 中的 `[preprocessor.langtabs]` 再构建，此时多语言示例会并排显示为普通代码块。
 
+## 接口抽查
+
+仓库内提供了 [scripts/verify_api.py](scripts/verify_api.py)，用于验证文档中记录的接口路由和基础响应结构：
+
+```bash
+# 只跑公开接口（需要 Cookie 的接口会 SKIP）
+python3 scripts/verify_api.py
+
+# 带上浏览器里导出的 pickcat_session 跑需要登录的接口
+PICKCAT_SESSION='<cookie 值>' python3 scripts/verify_api.py
+```
+
+脚本不会真正写入数据，也不会输出 Session 值。需要阿里云 CAPTCHA 的登录流程不会尝试。
+
 ## 目录结构
 
 ```
 .
 ├── book.toml            # mdBook 配置
 ├── langtabs.css / .js   # 多语言代码标签的样式与脚本
+├── scripts/
+│   └── verify_api.py    # 接口抽查脚本
+├── .github/workflows/   # mdBook 构建与 GitHub Pages 部署
 ├── src/
 │   ├── SUMMARY.md       # 目录
 │   ├── chapter_1.md     # 概述与约定
@@ -66,7 +85,7 @@ mdbook build          # 静态输出到 book/
 ## 接口约定
 
 - **基础地址**：`https://pickcat.dao3.fun/api/v1`
-- **鉴权**：服务端会话 Cookie `pickcat_session`（非 JWT），有效期 7 天；登出用 `DELETE /api/v1/session`
+- **鉴权**：服务端会话 Cookie `pickcat_session`（非 JWT），有效期 7 天；登出用 `DELETE /api/v1/session`。登录已接入阿里云 CAPTCHA，脚本场景建议手动登录后复用 Cookie
 - **分页**：游标分页，统一为 `pageInfo.hasNextPage` / `pageInfo.nextCursor`
 - **错误**：统一返回 `{ statusCode, code, message, details? }`，常见错误见「概述」
 
@@ -75,8 +94,8 @@ mdbook build          # 静态输出到 book/
 欢迎通过 Issue / PR 补充或修正接口。为保持风格一致，请尽量遵循：
 
 - **一个文档只描述一个接口**；模块页（如 `auth.md`、`user.md`）仅作为该模块的「一览」索引
-- 每个接口页包含：头部行 `> {中文描述} \`{路径}\` {METHOD}`、`请求体` / `响应体`、`值得注意的`、`示例`
-- `示例` 提供 **Rust / Python / TypeScript** 三种语言（使用 `<!-- langtabs-start -->` / `<!-- langtabs-end -->` 包裹）
+- 每个接口页通常包含：头部行 `> {中文描述} \`{路径}\` {METHOD}`、`请求体` / `响应体`、`值得注意的`、`示例`
+- `示例` 提供 **Rust / Python / TypeScript** 三种语言（使用 `<!-- langtabs-start -->` / `<!-- langtabs-end -->` 包裹）；需要登录的示例统一从环境变量 `PICKCAT_SESSION` 读取 Cookie
 - 字段表统一为 `| KEY | VALUE | TYPE |`
 - 未经验证的信息请明确标注
 
