@@ -21,7 +21,7 @@
 > 修改用户密码
 > `/users/{userId}` PATCH **需要Cookie**
 
-- 没有特殊标注的 API 都基于这个 URL：`https://cdsq.dao3.fun/api/v1`
+- 没有特殊标注的 API 都基于这个 URL：`https://pickcat.dao3.fun/api/v1`
 - URL 中类似这样的表达/abc/{user_id}，{xxx}是一个变量，一般不会说明变量含义，可以从{user_id}看出是用户 ID
 - 如果请求不需要用到 cookie，不会专门标注
 - 写接口（注册、发帖、上传等）需要 `Idempotency-Key` 请求头

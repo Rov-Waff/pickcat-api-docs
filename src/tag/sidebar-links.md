@@ -24,7 +24,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const SLUG: &str = "interest-plaza";
 
 #[tokio::main]
@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 SLUG = "interest-plaza"
 
 side = requests.get(f"{BASE_URL}/tags/{SLUG}/sidebar-links").raise_for_status().json()
@@ -50,7 +50,7 @@ for t in side["items"]:
     print("-", t["name"], "(" + t["slug"] + ")")
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const SLUG = "interest-plaza";
 
 async function main() {

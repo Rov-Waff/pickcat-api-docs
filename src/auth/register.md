@@ -40,7 +40,7 @@ use reqwest::{cookie::Jar, Client};
 use serde_json::{json, Value};
 use std::sync::Arc;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 
 /// 发起注册。返回注册会话 (含 id / status / expiresAt)
 async fn start_registration(
@@ -143,7 +143,7 @@ import json
 
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 
 def start_registration(
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     main()
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const jar = new Map<string, string>();
 
 function storeCookies(res: Response) {

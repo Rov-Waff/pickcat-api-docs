@@ -33,7 +33,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const USER_ID: &str = "01a0fcb0-5f5b-772d-a8ba-4b39d1ee4445";
 
 #[tokio::main]
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 USER_ID = "01a0fcb0-5f5b-772d-a8ba-4b39d1ee4445"
 
 following = requests.get(f"{BASE_URL}/users/{USER_ID}/following",
@@ -56,7 +56,7 @@ following = requests.get(f"{BASE_URL}/users/{USER_ID}/following",
 print("关注:", len(following["items"]))
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const USER_ID = "01a0fcb0-5f5b-772d-a8ba-4b39d1ee4445";
 
 async function main() {

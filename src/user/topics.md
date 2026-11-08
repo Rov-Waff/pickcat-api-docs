@@ -60,7 +60,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const USER_ID: &str = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195";
 
 #[tokio::main]
@@ -77,7 +77,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 USER_ID = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195"
 
 topics = requests.get(f"{BASE_URL}/users/{USER_ID}/topics",
@@ -86,7 +86,7 @@ for t in topics["items"]:
     print(f'[{t["kind"]}]', t["title"])
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const USER_ID = "01a0fbca-eee1-70ad-a00d-a1ed4c89b195";
 
 async function main() {

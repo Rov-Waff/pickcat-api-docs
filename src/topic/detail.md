@@ -70,7 +70,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const TOPIC_ID: &str = "01a0eb91-5d11-7fb0-b998-179add93620f";
 
 #[tokio::main]
@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 TOPIC_ID = "01a0eb91-5d11-7fb0-b998-179add93620f"
 
 with requests.Session() as s:
@@ -102,7 +102,7 @@ with requests.Session() as s:
     print("回复被截断:", topic["repliesTruncated"])
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const TOPIC_ID = "01a0eb91-5d11-7fb0-b998-179add93620f";
 
 async function main() {

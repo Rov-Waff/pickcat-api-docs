@@ -31,7 +31,7 @@ use reqwest::{cookie::Jar, Client};
 use serde_json::{json, Value};
 use std::sync::Arc;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const SUBMISSION_ID: &str = "01a0ff33-69c6-74a3-ba97-6370b8079f6c";
 
 #[tokio::main]
@@ -55,7 +55,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 SUBMISSION_ID = "01a0ff33-69c6-74a3-ba97-6370b8079f6c"
 
 with requests.Session() as s:
@@ -67,7 +67,7 @@ with requests.Session() as s:
     print("状态:", sub["status"], "/ 角色:", sub["contentRole"])
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const SUBMISSION_ID = "01a0ff33-69c6-74a3-ba97-6370b8079f6c";
 const jar = new Map<string, string>();
 

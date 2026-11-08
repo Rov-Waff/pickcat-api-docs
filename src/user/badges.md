@@ -48,7 +48,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 const USER_ID: &str = "01a0c957-53a6-798f-bf2a-2a83c94280d0";
 
 #[tokio::main]
@@ -65,7 +65,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 USER_ID = "01a0c957-53a6-798f-bf2a-2a83c94280d0"
 
 badges = requests.get(f"{BASE_URL}/users/{USER_ID}/badges").raise_for_status().json()
@@ -73,7 +73,7 @@ for b in badges["items"]:
     print(b["badge"]["name"], "(" + b["grantedAt"] + ")")
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 const USER_ID = "01a0c957-53a6-798f-bf2a-2a83c94280d0";
 
 async function main() {

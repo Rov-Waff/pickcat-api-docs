@@ -15,7 +15,7 @@
 use anyhow::Result;
 use reqwest::Client;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -29,13 +29,13 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 data = requests.get(f"{BASE_URL}/files/01a0b34f-c685-7777-b60d-fe2a6adb6f52").raise_for_status().content
 print("文件字节数:", len(data))
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 
 async function main() {
   const res = await fetch(`${BASE_URL}/files/01a0b34f-c685-7777-b60d-fe2a6adb6f52`);

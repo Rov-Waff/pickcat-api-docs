@@ -42,7 +42,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 
 with requests.Session() as s:
     # 首页推荐
@@ -75,7 +75,7 @@ with requests.Session() as s:
         print(f'({t["reason"]})', t["title"])
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 
 async function get(path: string): Promise<any> {
   const res = await fetch(`${BASE_URL}${path}`);

@@ -66,7 +66,7 @@ use reqwest::{cookie::Jar, Client};
 use serde_json::{json, Value};
 use std::sync::Arc;
 
-const BASE_URL: &str = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL: &str = "https://pickcat.dao3.fun/api/v1";
 // 来自 POST /registrations 的响应
 const REGISTRATION_ID: &str = "01a0fcab-dae0-736a-8d90-583dc20def93";
 
@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
 ```python
 import requests
 
-BASE_URL = "https://cdsq.dao3.fun/api/v1"
+BASE_URL = "https://pickcat.dao3.fun/api/v1"
 # 来自 POST /registrations 的响应
 REGISTRATION_ID = "01a0fcab-dae0-736a-8d90-583dc20def93"
 
@@ -104,7 +104,7 @@ with requests.Session() as s:
     # 响应的 Set-Cookie 已保存在 s, 之后自动携带
 ```
 ```typescript
-const BASE_URL = "https://cdsq.dao3.fun/api/v1";
+const BASE_URL = "https://pickcat.dao3.fun/api/v1";
 // 来自 POST /registrations 的响应
 const REGISTRATION_ID = "01a0fcab-dae0-736a-8d90-583dc20def93";
 const jar = new Map<string, string>();

@@ -1,6 +1,6 @@
 # Pickcat 社区 API 文档
 
-使用 [mdBook](https://rust-lang.github.io/mdBook/) 构建的 Pickcat（`cdsq.dao3.fun`）社区 API 文档，旨在辅助脚本与第三方应用的开发。
+使用 [mdBook](https://rust-lang.github.io/mdBook/) 构建的 Pickcat（`pickcat.dao3.fun`）社区 API 文档，旨在辅助脚本与第三方应用的开发。
 
 > ⚠️ **请注意**
 >
@@ -65,7 +65,7 @@ mdbook build          # 静态输出到 book/
 
 ## 接口约定
 
-- **基础地址**：`https://cdsq.dao3.fun/api/v1`
+- **基础地址**：`https://pickcat.dao3.fun/api/v1`
 - **鉴权**：服务端会话 Cookie `pickcat_session`（非 JWT），有效期 7 天；登出用 `DELETE /api/v1/session`
 - **分页**：游标分页，统一为 `pageInfo.hasNextPage` / `pageInfo.nextCursor`
 - **错误**：统一返回 `{ statusCode, code, message, details? }`，常见错误见「概述」
